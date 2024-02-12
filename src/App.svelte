@@ -8,24 +8,67 @@
     ["M", "N", "O", "P"],
   ];
 
-  function shuffle_rows() {
-    grid = grid.map((row) => row.sort(() => Math.random() - 0.5));
+  // Apply gravity to "move the row to the start".
+  // May be destructive.
+  // Returns the new row.
+  function apply_gravity_to_row(row) {
+    return row.sort();
+  }
+
+  function copy_grid(g) {
+    return g.map((row) => row.slice());
+  }
+
+  function left_gravity(g) {
+    return copy_grid(g).map(apply_gravity_to_row);
+  }
+
+  function transpose_grid(g) {
+    let answer = copy_grid(g);
+    for (let i = 0; i < g.length; i++) {
+      for (let j = 0; j < g.length; j++) {
+        answer[i][j] = g[j][i];
+      }
+    }
+    return answer;
+  }
+
+  function up_gravity(g) {
+    g = transpose_grid(g);
+    g = left_gravity(g);
+    return transpose_grid(g);
+  }
+
+  function v_flip_grid(g) {
+    return copy_grid(g).reverse();
+  }
+
+  function h_flip_grid(g) {
+    return copy_grid(g).map((row) => row.reverse());
+  }
+
+  function down_gravity(g) {
+    return v_flip_grid(up_gravity(v_flip_grid(g)));
+  }
+
+  function right_gravity(g) {
+    return h_flip_grid(left_gravity(h_flip_grid(g)));
   }
 
   function handleUp() {
-    console.log("up");
+    grid = up_gravity(grid);
   }
 
   function handleDown() {
-    console.log("down");
+    grid = down_gravity(grid);
   }
 
   function handleLeft() {
-    console.log("left");
+    grid = left_gravity(grid);
   }
 
   function handleRight() {
-    console.log("right");
+    grid = right_gravity(grid);
   }
 
   function handleKeyPress(event) {
