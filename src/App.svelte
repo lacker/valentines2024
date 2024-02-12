@@ -163,13 +163,13 @@
       !is_legal(right_gravity)
     ) {
       game_over = true;
-      message = "Game over!";
+      message = "You lose! Play again?";
       return;
     }
 
-    if (has(grid, "5")) {
+    if (has(grid, "10")) {
       game_over = true;
-      message = "You win!";
+      message = "You win! Play again?";
       return;
     }
   }
@@ -191,6 +191,12 @@
       default:
         // Not an arrow key
         break;
+    }
+  }
+
+  function handleClick() {
+    if (game_over) {
+      reset_game();
     }
   }
 
@@ -218,7 +224,16 @@
       {/each}
     </div>
   </div>
-  <div class="flex justify-center items-center h-screen">{message}</div>
+
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <!-- svelte-ignore a11y-no-static-element-interactions -->
+  <div
+    class="flex justify-center items-center h-screen"
+    style={game_over ? "cursor: pointer;" : ""}
+    on:click={handleClick}
+  >
+    {message}
+  </div>
 </div>
 
 <style>
