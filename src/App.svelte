@@ -1,18 +1,85 @@
 <script>
   import { onMount, onDestroy } from "svelte";
 
-  let grid = [
-    ["A", "B", "C", "D"],
-    ["E", "F", "G", "H"],
-    ["I", "J", "K", "L"],
-    ["M", "N", "O", "P"],
-  ];
+  let grid = null;
+  let count = null;
+  let modulus = 4;
+  let message = null;
+  let game_over = null;
+
+  function add(value) {
+    let empty_cells = [];
+    for (let i = 0; i < grid.length; i++) {
+      for (let j = 0; j < grid[i].length; j++) {
+        if (grid[i][j] === " ") {
+          empty_cells.push([i, j]);
+        }
+      }
+    }
+    if (empty_cells.length === 0) {
+      return;
+    }
+    let [i, j] = empty_cells[Math.floor(Math.random() * empty_cells.length)];
+    grid[i][j] = value;
+  }
+
+  function reset_game() {
+    grid = [
+      [" ", " ", " ", " "],
+      [" ", " ", " ", " "],
+      [" ", " ", " ", " "],
+      [" ", " ", " ", " "],
+    ];
+    add("1");
+    count = 0;
+    message = "Leo is counting to 10. Help him out!";
+    game_over = false;
+  }
+
+  reset_game();
 
   // Apply gravity to "move the row to the start".
   // May be destructive.
   // Returns the new row.
   function apply_gravity_to_row(row) {
-    return row.sort();
+    let answer = [];
+    let pending = null;
+    for (let value of row) {
+      if (value === " ") {
+        continue;
+      }
+      if (pending === null) {
+        pending = value;
+      } else if (pending === value) {
+        answer.push("" + (+value + 1));
+        pending = null;
+      } else {
+        answer.push(pending);
+        pending = value;
+      }
+    }
+    if (pending !== null) {
+      answer.push(pending);
+    }
+    while (answer.length < row.length) {
+      answer.push(" ");
+    }
+    return answer;
+  }
+
+  function has(g, value) {
+    for (let row of g) {
+      for (let cell of row) {
+        if (cell === value) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  function remove(g, value) {
+    return g.map((row) => row.map((cell) => (cell === value ? " " : cell)));
   }
 
   function copy_grid(g) {
@@ -55,35 +122,71 @@
     return h_flip_grid(left_gravity(h_flip_grid(g)));
   }
 
-  function handleUp() {
-    grid = up_gravity(grid);
+  function eq(g1, g2) {
+    for (let i = 0; i < g1.length; i++) {
+      for (let j = 0; j < g1[i].length; j++) {
+        if (g1[i][j] !== g2[i][j]) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
-  function handleDown() {
-    grid = down_gravity(grid);
+  function is_legal(f) {
+    let copy = copy_grid(grid);
+    return !eq(f(copy), copy);
   }
 
-  function handleLeft() {
-    grid = left_gravity(grid);
-  }
+  function enact(f) {
+    if (game_over) {
+      return;
+    }
+    if (is_legal(f)) {
+      grid = f(grid);
+      add("1");
 
-  function handleRight() {
-    grid = right_gravity(grid);
+      count += 1;
+      if (count % modulus === 0) {
+        if (has(grid, "Leo")) {
+          grid = remove(grid, "Leo");
+        } else if (has(grid, " ")) {
+          add("Leo");
+        }
+      }
+    }
+
+    if (
+      !is_legal(up_gravity) &&
+      !is_legal(down_gravity) &&
+      !is_legal(left_gravity) &&
+      !is_legal(right_gravity)
+    ) {
+      game_over = true;
+      message = "Game over!";
+      return;
+    }
+
+    if (has(grid, "5")) {
+      game_over = true;
+      message = "You win!";
+      return;
+    }
   }
 
   function handleKeyPress(event) {
     switch (event.key) {
       case "ArrowUp":
-        handleUp();
+        enact(up_gravity);
         break;
       case "ArrowDown":
-        handleDown();
+        enact(down_gravity);
         break;
       case "ArrowLeft":
-        handleLeft();
+        enact(left_gravity);
         break;
       case "ArrowRight":
-        handleRight();
+        enact(right_gravity);
         break;
       default:
         // Not an arrow key
@@ -100,16 +203,30 @@
   });
 </script>
 
-<div class="flex justify-center items-center h-screen">
-  <div class="grid grid-cols-4 gap-2">
-    {#each grid as row}
-      {#each row as character}
-        <div
-          class="aspect-w-1 aspect-h-1 w-32 h-32 flex justify-center items-center border border-black"
-        >
-          {character}
-        </div>
+<div class="centered-container">
+  <div class="flex justify-center items-center h-screen"></div>
+  <div class="flex justify-center items-center h-screen">
+    <div class="grid grid-cols-4 gap-2">
+      {#each grid as row}
+        {#each row as character}
+          <div
+            class="aspect-w-1 aspect-h-1 w-32 h-32 flex justify-center items-center border border-black"
+          >
+            {character}
+          </div>
+        {/each}
       {/each}
-    {/each}
+    </div>
   </div>
+  <div class="flex justify-center items-center h-screen">{message}</div>
 </div>
+
+<style>
+  .centered-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh; /* Use 100vh to make the container fill the screen vertically */
+  }
+</style>
