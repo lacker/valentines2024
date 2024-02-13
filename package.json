@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "VITE_BASE_URL=/valentines2024/ vite build",
+    "build": "VITE_BASE_URL=/valentines2024/ vite build; touch dist/.nojekyll",
     "preview": "vite preview"
   },
   "devDependencies": {
