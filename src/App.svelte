@@ -1,5 +1,6 @@
 <script>
   import { onMount, onDestroy } from "svelte";
+  import Hammer from "hammerjs";
 
   let grid = null;
   let count = null;
@@ -167,7 +168,7 @@
       return;
     }
 
-    if (has(grid, "10")) {
+    if (has(grid, "5")) {
       game_over = true;
       message = "You win! Play again?";
       return;
@@ -202,6 +203,35 @@
 
   onMount(() => {
     window.addEventListener("keydown", handleKeyPress);
+
+    let mc = new Hammer(document.body);
+
+    // @ts-ignore
+    mc.get("swipe").set({
+      // @ts-ignore
+      direction: Hammer.DIRECTION_ALL, // Recognize swipe in all directions
+    });
+
+    // Listen for swipe gestures
+    // @ts-ignore
+    mc.on("swipeup", function (ev) {
+      enact(up_gravity);
+    });
+
+    // @ts-ignore
+    mc.on("swipedown", function (ev) {
+      enact(down_gravity);
+    });
+
+    // @ts-ignore
+    mc.on("swipeleft", function (ev) {
+      enact(left_gravity);
+    });
+
+    // @ts-ignore
+    mc.on("swiperight", function (ev) {
+      enact(right_gravity);
+    });
   });
 
   onDestroy(() => {
@@ -210,13 +240,13 @@
 </script>
 
 <div class="centered-container">
-  <div class="flex justify-center items-center h-screen"></div>
-  <div class="flex justify-center items-center h-screen">
+  <div class="flex justify-center items-center"></div>
+  <div class="flex justify-center items-center">
     <div class="grid grid-cols-4 gap-2">
       {#each grid as row}
         {#each row as character}
           <div
-            class="aspect-w-1 aspect-h-1 w-32 h-32 flex justify-center items-center border border-black"
+            class="aspect-w-1 aspect-h-1 w-16 h-16 flex justify-center items-center border border-black"
           >
             {character}
           </div>
@@ -228,7 +258,7 @@
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div
-    class="flex justify-center items-center h-screen"
+    class="flex justify-center items-center h-32"
     style={game_over ? "cursor: pointer;" : ""}
     on:click={handleClick}
   >
