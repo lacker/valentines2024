@@ -1,4 +1,5 @@
 <script>
+  console.log("loading.");
   import { onMount, onDestroy } from "svelte";
   import Hammer from "hammerjs";
 
