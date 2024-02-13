@@ -14,4 +14,4 @@ git status --porcelain | grep -q . && { echo "Push your changes and run deploy.s
 
 echo Changes are committed, we are ok to deploy.
 
-git subtree push --prefix dist origin gh-pages
+git subtree push --prefix dist origin gh-pages-2
