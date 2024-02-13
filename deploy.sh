@@ -1,24 +1,15 @@
 #!/usr/bin/env sh
 
-# abort on errors
+# To make this script work, you should check in the "dist" directory, and configure github pages to run off the
+# gh-pages branch.
+
+# Abort on errors
 set -e
 
-# build
 npm run build
 
-# navigate into the build output directory
-cd dist
+# Check there are no changes
 
-# place .nojekyll to bypass Jekyll processing
-echo > .nojekyll
+git status --porcelain | grep -q . && { echo "Uncommitted changes detected"; exit 1; }
 
-# if you are deploying to a custom domain
-# echo 'www.example.com' > CNAME
-
-git init
-git checkout -B main
-git add -A
-git commit -m 'deploy'
-
-# if you are deploying to https://<USERNAME>.github.io/<REPO>
-git push -f git@github.com:lacker/valentines2024.git main:gh-pages
+echo all changes are committed, we are ok to deploy
