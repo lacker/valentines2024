@@ -10,6 +10,8 @@ npm run build
 
 # Check there are no changes
 
-git status --porcelain | grep -q . && { echo "Uncommitted changes detected"; exit 1; }
+git status --porcelain | grep -q . && { echo "Push your changes and run deploy.sh again."; exit 1; }
 
-echo all changes are committed, we are ok to deploy
+echo Changes are committed, we are ok to deploy.
+
+git subtree push --prefix dist origin gh-pages
