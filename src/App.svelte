@@ -253,7 +253,7 @@
       case "9":
       case "10":
         return {
-          style: `background-image: url(/${str}.png); background-size: cover`,
+          style: `background-image: url(${str}.png); background-size: cover`,
         };
       default:
         return { text: str };
