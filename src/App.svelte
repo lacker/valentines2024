@@ -168,14 +168,14 @@
       return;
     }
 
-    if (has(grid, "5")) {
+    if (has(grid, "10")) {
       game_over = true;
       message = "You win! Play again?";
       return;
     }
   }
 
-  function handleKeyPress(event) {
+  function handle_key_press(event) {
     switch (event.key) {
       case "ArrowUp":
         enact(up_gravity);
@@ -202,7 +202,7 @@
   }
 
   onMount(() => {
-    window.addEventListener("keydown", handleKeyPress);
+    window.addEventListener("keydown", handle_key_press);
 
     let mc = new Hammer(document.body);
 
@@ -235,8 +235,37 @@
   });
 
   onDestroy(() => {
-    window.removeEventListener("keydown", handleKeyPress);
+    window.removeEventListener("keydown", handle_key_press);
   });
+
+  function get_info(str) {
+    switch (str) {
+      case "Leo":
+      case "1":
+      case "2":
+      case "3":
+      case "4":
+      case "5":
+      case "6":
+      case "7":
+      case "8":
+      case "9":
+      case "10":
+        return {
+          style: `background-image: url(/${str}.png); background-size: cover`,
+        };
+      default:
+        return { text: str };
+    }
+  }
+
+  function get_style(str) {
+    return get_info(str).style || "";
+  }
+
+  function get_text(str) {
+    return get_info(str).text || " ";
+  }
 </script>
 
 <div class="centered-container">
@@ -244,11 +273,12 @@
   <div class="flex justify-center items-center">
     <div class="grid grid-cols-4 gap-2">
       {#each grid as row}
-        {#each row as character}
+        {#each row as str}
           <div
             class="aspect-w-1 aspect-h-1 w-16 h-16 flex justify-center items-center border border-black"
+            style={get_style(str)}
           >
-            {character}
+            {get_text(str)}
           </div>
         {/each}
       {/each}
